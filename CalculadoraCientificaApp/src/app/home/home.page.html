@@ -6,6 +6,11 @@
         Calculadora Científica
       </span>
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="btn-ver-historial" routerLink="/historial" routerDirection="forward">
+        <ion-icon slot="icon-only" name="time-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -33,6 +38,13 @@
           {{ angleMode === 'deg' ? 'DEG' : 'RAD' }}
         </ion-chip>
       </div>
+    </div>
+
+    <!-- ── MENSAJE DE ERROR ── -->
+    <div class="error-banner" *ngIf="errorMsg" (click)="clearError()">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span>{{ errorMsg }}</span>
+      <ion-icon name="close-outline" class="error-close"></ion-icon>
     </div>
 
     <!-- ── TECLADO DE LA CALCULADORA ── -->

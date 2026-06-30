@@ -1,0 +1,95 @@
+ion-content {
+  --background: var(--calc-bg);
+}
+
+ion-toolbar {
+  --background: var(--calc-surface);
+}
+
+// ── Empty state ───────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  gap: 12px;
+  color: rgba(148, 163, 184, 0.6);
+  text-align: center;
+  padding: 20px;
+
+  ion-icon {
+    font-size: 4rem;
+    color: rgba(124, 58, 237, 0.4);
+  }
+
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(148, 163, 184, 0.7);
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// ── Lista ─────────────────────────────────────────────
+.historial-list {
+  background: transparent;
+  padding: 12px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  ion-item-sliding {
+    border-radius: 14px;
+    overflow: hidden;
+  }
+}
+
+.historial-item {
+  --background: var(--calc-surface);
+  --border-radius: 14px;
+  --padding-start: 16px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --inner-border-width: 0;
+  border: 1px solid var(--calc-border);
+
+  &::part(native) {
+    border-radius: 14px;
+  }
+}
+
+.historial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.historial-expr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: rgba(148, 163, 184, 0.75);
+  word-break: break-all;
+}
+
+.historial-result {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ion-color-primary-tint);
+}
+
+.historial-fecha {
+  font-size: 0.72rem;
+  color: rgba(148, 163, 184, 0.5);
+  white-space: nowrap;
+  padding-left: 8px;
+}

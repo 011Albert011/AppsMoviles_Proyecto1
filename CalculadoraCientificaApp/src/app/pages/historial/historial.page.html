@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="Calc"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Historial</ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="btn-limpiar-historial" (click)="limpiarHistorial()" color="danger"
+                  [disabled]="historial.length === 0">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- Sin entradas -->
+  <div class="empty-state" *ngIf="historial.length === 0">
+    <ion-icon name="calculator-outline"></ion-icon>
+    <h2>Sin historial</h2>
+    <p>Las operaciones que realices aparecerán aquí.</p>
+  </div>
+
+  <!-- Lista de operaciones -->
+  <ion-list *ngIf="historial.length > 0" class="historial-list">
+    <ion-item-sliding *ngFor="let entrada of historial; let i = index" [id]="'historial-item-' + i">
+
+      <ion-item class="historial-item" lines="none">
+        <div class="historial-content" slot="start">
+          <span class="historial-expr">{{ entrada.expresion }}</span>
+          <span class="historial-result">= {{ entrada.resultado }}</span>
+        </div>
+        <div class="historial-fecha" slot="end">
+          {{ entrada.fecha | date:'HH:mm' }}
+        </div>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarEntrada(i)" [id]="'btn-eliminar-' + i">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+
+</ion-content>

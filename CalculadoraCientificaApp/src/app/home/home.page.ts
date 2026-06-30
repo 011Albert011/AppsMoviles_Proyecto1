@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CalculadoraService } from '../services/calculadora.service';
 
 @Component({
   selector: 'app-home',
@@ -8,168 +9,169 @@ import { Component } from '@angular/core';
 })
 export class HomePage {
 
-  /** Texto que se muestra en la línea de expresión (superior) */
+  /** Expresión visible en la línea superior de la pantalla */
   expression: string = '';
 
-  /** Texto que se muestra en la línea de resultado (grande) */
+  /** Valor o expresión que el usuario está construyendo */
   currentInput: string = '';
 
-  /** Modo de ángulo para funciones trigonométricas */
+  /** Modo de ángulo para trigonometría */
   angleMode: 'deg' | 'rad' = 'deg';
 
-  /** Indica si la última operación fue un resultado (para reiniciar input) */
+  /** Mensaje de error a mostrar */
+  errorMsg: string = '';
+
+  /** Indica si el último evento fue un cálculo exitoso */
   private justCalculated: boolean = false;
 
-  constructor() {}
+  constructor(private calcService: CalculadoraService) {}
 
-  // ────────────────────────────────────────────────────────
-  // Entrada de caracteres básicos
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // Entrada de caracteres
+  // ──────────────────────────────────────────────────────────
 
   appendChar(char: string): void {
-    // Si acaba de calcularse, reiniciar para nueva operación
+    this.clearError();
+
     if (this.justCalculated) {
-      // Si el usuario escribe un operador, continúa con el resultado
       if (['+', '-', '*', '/', '^', '%'].includes(char)) {
+        // Continuar desde el resultado
         this.expression = this.currentInput;
         this.currentInput = '';
       } else {
+        // Nueva operación
         this.expression = '';
         this.currentInput = '';
       }
       this.justCalculated = false;
     }
 
-    // Evitar múltiples puntos decimales en el número actual
+    // Evitar doble punto en el mismo número
     if (char === '.') {
-      const parts = this.currentInput.split(/[\+\-\*\/\^%]/);
-      const lastPart = parts[parts.length - 1];
-      if (lastPart.includes('.')) return;
+      const tokens = this.currentInput.split(/[\+\-\*\/\^%\(]/);
+      const ultimo = tokens[tokens.length - 1];
+      if (ultimo.includes('.')) return;
     }
+
+    // Evitar doble operador seguido (excepto para negativo después de operador)
+    const ops = ['+', '-', '*', '/', '^', '%'];
+    const lastChar = this.currentInput.slice(-1);
+    if (ops.includes(char) && ops.includes(lastChar) && char !== '-') return;
 
     this.currentInput += char;
   }
 
-  // ────────────────────────────────────────────────────────
-  // Funciones científicas — agregan notación funcional
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // Funciones científicas
+  // ──────────────────────────────────────────────────────────
 
   appendFunction(fn: string): void {
+    this.clearError();
+
     if (this.justCalculated) {
       this.expression = '';
       this.currentInput = '';
       this.justCalculated = false;
     }
+
+    // Si hay un número al final, insertar multiplicación implícita
+    const lastChar = this.currentInput.slice(-1);
+    if (lastChar && /[\d\)]/.test(lastChar)) {
+      this.currentInput += '*';
+    }
+
     this.currentInput += `${fn}(`;
   }
 
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
   // Borrar todo (C)
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
 
   clearAll(): void {
     this.currentInput = '';
     this.expression = '';
     this.justCalculated = false;
+    this.clearError();
   }
 
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
   // Borrar último carácter (⌫)
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
 
   backspace(): void {
-    if (this.justCalculated) {
-      this.clearAll();
-      return;
-    }
+    this.clearError();
+    if (this.justCalculated) { this.clearAll(); return; }
     if (this.currentInput.length > 0) {
       this.currentInput = this.currentInput.slice(0, -1);
     }
   }
 
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
   // Alternar signo (+/−)
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
 
   toggleNegate(): void {
     if (!this.currentInput) return;
-    if (this.currentInput.startsWith('-')) {
-      this.currentInput = this.currentInput.slice(1);
-    } else {
-      this.currentInput = '-' + this.currentInput;
-    }
+    this.currentInput = this.currentInput.startsWith('-')
+      ? this.currentInput.slice(1)
+      : '-' + this.currentInput;
   }
 
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
   // Alternar modo DEG / RAD
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
 
   toggleAngleMode(): void {
     this.angleMode = this.angleMode === 'deg' ? 'rad' : 'deg';
   }
 
-  // ────────────────────────────────────────────────────────
-  // Calcular resultado (=)  — Sesión 2: se moverá al servicio
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // Calcular resultado (=)
+  // ──────────────────────────────────────────────────────────
 
   calculate(): void {
-    if (!this.currentInput.trim()) return;
+    if (!this.currentInput.trim()) {
+      this.showError('Ingresa una expresión primero');
+      return;
+    }
 
     try {
-      const result = this.evaluateExpression(this.currentInput);
+      const enGrados = this.angleMode === 'deg';
+      const valor = this.calcService.evaluarExpresion(this.currentInput, enGrados);
+      const resultadoStr = this.calcService.formatearResultado(valor);
+
+      // Guardar en historial
+      this.calcService.guardarEnHistorial(this.currentInput, resultadoStr);
+
       this.expression = this.currentInput + ' =';
-      this.currentInput = this.formatResult(result);
+      this.currentInput = resultadoStr;
       this.justCalculated = true;
+
     } catch (err: any) {
       this.expression = this.currentInput;
+      this.showError(err.message || 'Error en la operación');
       this.currentInput = 'Error';
       this.justCalculated = true;
     }
   }
 
-  // ────────────────────────────────────────────────────────
-  // Evaluador de expresiones (placeholder para Sesión 2)
-  // ────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // Helper: determinar si el input es largo
+  // ──────────────────────────────────────────────────────────
 
-  private evaluateExpression(expr: string): number {
-    // Reemplazar funciones científicas con sus equivalentes JS
-    let processed = expr
-      .replace(/sqrt\(/g,   'Math.sqrt(')
-      .replace(/log\(/g,    'Math.log10(')
-      .replace(/ln\(/g,     'Math.log(')
-      .replace(/asin\(/g,   this.angleMode === 'deg' ? '(180/Math.PI)*Math.asin(' : 'Math.asin(')
-      .replace(/acos\(/g,   this.angleMode === 'deg' ? '(180/Math.PI)*Math.acos(' : 'Math.acos(')
-      .replace(/atan\(/g,   this.angleMode === 'deg' ? '(180/Math.PI)*Math.atan(' : 'Math.atan(')
-      .replace(/sin\(/g,    this.angleMode === 'deg' ? 'Math.sin((Math.PI/180)*(' : 'Math.sin(')
-      .replace(/cos\(/g,    this.angleMode === 'deg' ? 'Math.cos((Math.PI/180)*(' : 'Math.cos(')
-      .replace(/tan\(/g,    this.angleMode === 'deg' ? 'Math.tan((Math.PI/180)*(' : 'Math.tan(')
-      .replace(/\^/g,       '**')
-      .replace(/%/g,        '/100');
-
-    // Cerrar paréntesis adicionales para sin/cos/tan en modo grados
-    if (this.angleMode === 'deg') {
-      const fns = ['sin', 'cos', 'tan'];
-      fns.forEach(fn => {
-        const count = (expr.match(new RegExp(`${fn}\\(`, 'g')) || []).length;
-        processed += ')'.repeat(count);
-      });
-    }
-
-    // Validación básica de seguridad — no permitir eval de código arbitrario
-    if (/[a-zA-Z]/.test(processed.replace(/Math\./g, '').replace(/PI/g, ''))) {
-      throw new Error('Expresión inválida');
-    }
-
-    // eslint-disable-next-line no-eval
-    const result = eval(processed);
-
-    if (!isFinite(result)) throw new Error('Resultado no finito');
-    return result;
+  get isResultSmall(): boolean {
+    return this.currentInput.length > 12;
   }
 
-  private formatResult(value: number): string {
-    if (Number.isInteger(value)) return value.toString();
-    // Máximo 10 decimales, sin ceros innecesarios
-    return parseFloat(value.toFixed(10)).toString();
+  // ──────────────────────────────────────────────────────────
+  // Manejo de errores
+  // ──────────────────────────────────────────────────────────
+
+  private showError(msg: string): void {
+    this.errorMsg = msg;
+  }
+
+  clearError(): void {
+    this.errorMsg = '';
   }
 }
