@@ -1,20 +1,146 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
     <ion-title>
-      Blank
+      <span class="app-title">
+        <ion-icon name="calculator-outline"></ion-icon>
+        Calculadora Científica
+      </span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div class="calc-wrapper">
+
+    <!-- ── PANTALLA DE RESULTADOS ── -->
+    <div class="display-card">
+      <!-- Expresión ingresada -->
+      <div class="display-expression" id="display-expression">
+        {{ expression || '&nbsp;' }}
+      </div>
+      <!-- Resultado / número actual -->
+      <div class="display-result" id="display-result"
+           [class.display-result--small]="currentInput.length > 12">
+        {{ currentInput || '0' }}
+      </div>
+      <!-- Indicador de modo de ángulo -->
+      <div class="display-angle-mode">
+        <ion-chip
+          [color]="angleMode === 'deg' ? 'primary' : 'secondary'"
+          (click)="toggleAngleMode()"
+          id="btn-angle-mode">
+          {{ angleMode === 'deg' ? 'DEG' : 'RAD' }}
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- ── TECLADO DE LA CALCULADORA ── -->
+    <div class="calc-keyboard">
+
+      <!-- Fila 1: Funciones científicas trigonométricas -->
+      <ion-grid class="btn-grid" fixed>
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-sin"    (click)="appendFunction('sin')">sin</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-cos"    (click)="appendFunction('cos')">cos</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-tan"    (click)="appendFunction('tan')">tan</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-log"    (click)="appendFunction('log')">log</ion-button></ion-col>
+        </ion-row>
+
+        <!-- Fila 2: Funciones científicas inversas / avanzadas -->
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-asin"   (click)="appendFunction('asin')">sin⁻¹</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-acos"   (click)="appendFunction('acos')">cos⁻¹</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-atan"   (click)="appendFunction('atan')">tan⁻¹</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-ln"     (click)="appendFunction('ln')">ln</ion-button></ion-col>
+        </ion-row>
+
+        <!-- Fila 3: Sqrt, Potencia, Paréntesis, Porcentaje -->
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-sqrt"   (click)="appendFunction('sqrt')">√</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-power"  (click)="appendChar('^')">xʸ</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-open"   (click)="appendChar('(')">(</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-sci" id="btn-close"  (click)="appendChar(')')">)</ion-button></ion-col>
+        </ion-row>
+
+        <!-- Separador -->
+        <div class="divider"></div>
+
+        <!-- Fila 4: C · ⌫ · % · ÷ -->
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-clear" id="btn-clear"
+                        (click)="clearAll()">C</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-backspace" id="btn-backspace"
+                        (click)="backspace()">⌫</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-op" id="btn-percent"
+                        (click)="appendChar('%')">%</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-op" id="btn-div"
+                        (click)="appendChar('/')">÷</ion-button>
+          </ion-col>
+        </ion-row>
+
+        <!-- Fila 5: 7 · 8 · 9 · × -->
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-7" (click)="appendChar('7')">7</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-8" (click)="appendChar('8')">8</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-9" (click)="appendChar('9')">9</ion-button></ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-op" id="btn-mul"
+                        (click)="appendChar('*')">×</ion-button>
+          </ion-col>
+        </ion-row>
+
+        <!-- Fila 6: 4 · 5 · 6 · − -->
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-4" (click)="appendChar('4')">4</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-5" (click)="appendChar('5')">5</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-6" (click)="appendChar('6')">6</ion-button></ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-op" id="btn-sub"
+                        (click)="appendChar('-')">−</ion-button>
+          </ion-col>
+        </ion-row>
+
+        <!-- Fila 7: 1 · 2 · 3 · + -->
+        <ion-row>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-1" (click)="appendChar('1')">1</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-2" (click)="appendChar('2')">2</ion-button></ion-col>
+          <ion-col><ion-button expand="block" class="btn btn-num" id="btn-3" (click)="appendChar('3')">3</ion-button></ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-op" id="btn-add"
+                        (click)="appendChar('+')">+</ion-button>
+          </ion-col>
+        </ion-row>
+
+        <!-- Fila 8: +/− · 0 · . · = -->
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-num" id="btn-negate"
+                        (click)="toggleNegate()">+/−</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-num" id="btn-0"
+                        (click)="appendChar('0')">0</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-num" id="btn-dot"
+                        (click)="appendChar('.')">.</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" class="btn btn-equals" id="btn-equals"
+                        (click)="calculate()">=</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </div>
   </div>
+
 </ion-content>

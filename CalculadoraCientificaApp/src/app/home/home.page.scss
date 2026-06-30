@@ -1,27 +1,301 @@
-#container {
-  text-align: center;
+// ===================================================
+// Calculadora Científica – Home Page Styles
+// ===================================================
 
+// ── Toolbar ──────────────────────────────────────────
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+
+  ion-icon {
+    font-size: 1.3rem;
+    color: var(--ion-color-primary-tint);
+  }
+}
+
+// ── Wrapper ───────────────────────────────────────────
+.calc-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 10px 16px;
+  gap: 12px;
+  background: var(--calc-bg);
+  min-height: 100vh;
+}
+
+// ── Display Card ──────────────────────────────────────
+.display-card {
+  background: var(--calc-display-bg);
+  border: 1px solid var(--calc-border);
+  border-radius: 20px;
+  padding: 18px 20px 14px;
+  position: relative;
+  box-shadow:
+    0 0 30px rgba(124, 58, 237, 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.display-expression {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(148, 163, 184, 0.8);
+  text-align: right;
+  min-height: 20px;
+  word-break: break-all;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.display-result {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #f8fafc;
+  text-align: right;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  word-break: break-all;
+  transition: font-size 0.2s ease;
+
+  &--small {
+    font-size: 1.8rem;
+  }
+}
+
+.display-angle-mode {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 12px;
+  left: 16px;
+
+  ion-chip {
+    --background: rgba(124, 58, 237, 0.2);
+    font-size: 0.7rem;
+    font-weight: 600;
+    height: 24px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.93);
+    }
+  }
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+// ── Keyboard ──────────────────────────────────────────
+.calc-keyboard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
+.btn-grid {
+  padding: 0;
+  flex: 1;
 
-  color: #8c8c8c;
+  ion-row {
+    gap: 6px;
+    margin-bottom: 6px;
 
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ion-col {
+    padding: 0;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(124, 58, 237, 0.4),
+    transparent
+  );
+  margin: 6px 0 8px;
+}
+
+// ── Button Base ──────────────────────────────────────
+.btn {
+  --border-radius: 14px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  height: 52px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   margin: 0;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+
+  &::part(native) {
+    border-radius: 14px;
+  }
+
+  &:active {
+    transform: scale(0.94);
+    filter: brightness(0.85);
+  }
 }
 
-#container a {
-  text-decoration: none;
+// ── Number buttons ────────────────────────────────────
+.btn-num {
+  --background: var(--btn-number-bg);
+  --background-activated: var(--btn-number-hover);
+  --color: var(--btn-number-text);
+  --box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-size: 1.3rem;
+  font-weight: 500;
+
+  &:hover {
+    --background: var(--btn-number-hover);
+  }
+}
+
+// ── Operator buttons ─────────────────────────────────
+.btn-op {
+  --background: var(--btn-op-bg);
+  --background-activated: var(--btn-op-hover);
+  --color: var(--btn-op-text);
+  --box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
+  font-size: 1.3rem;
+
+  &:hover {
+    --background: var(--btn-op-hover);
+  }
+}
+
+// ── Scientific buttons ────────────────────────────────
+.btn-sci {
+  --background: var(--btn-sci-bg);
+  --background-activated: var(--btn-sci-hover);
+  --color: var(--btn-sci-text);
+  --box-shadow: 0 2px 10px rgba(6, 182, 212, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  height: 46px;
+
+  &:hover {
+    --background: var(--btn-sci-hover);
+  }
+}
+
+// ── Clear button ──────────────────────────────────────
+.btn-clear {
+  --background: var(--btn-clear-bg);
+  --background-activated: var(--btn-clear-hover);
+  --color: var(--btn-clear-text);
+  --box-shadow: 0 2px 12px rgba(185, 28, 28, 0.4);
+  font-size: 1.1rem;
+
+  &:hover {
+    --background: var(--btn-clear-hover);
+  }
+}
+
+// ── Backspace button ──────────────────────────────────
+.btn-backspace {
+  --background: var(--btn-backspace-bg);
+  --background-activated: var(--btn-backspace-hover);
+  --color: var(--btn-backspace-text);
+  --box-shadow: 0 2px 10px rgba(146, 64, 14, 0.4);
+  font-size: 1.2rem;
+
+  &:hover {
+    --background: var(--btn-backspace-hover);
+  }
+}
+
+// ── Equals button ─────────────────────────────────────
+.btn-equals {
+  --background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+  --background-activated: linear-gradient(135deg, #6d33d1 0%, #059ab8 100%);
+  --color: #ffffff;
+  --box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6);
+  font-size: 1.5rem;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    --box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+  }
+}
+
+// ── Responsive: Tablets ──────────────────────────────
+@media (min-width: 600px) {
+  .calc-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 24px;
+  }
+
+  .btn {
+    height: 62px;
+    font-size: 1.1rem;
+    --border-radius: 16px;
+
+    &::part(native) {
+      border-radius: 16px;
+    }
+  }
+
+  .btn-sci {
+    height: 54px;
+    font-size: 0.9rem;
+  }
+
+  .display-result {
+    font-size: 3.2rem;
+  }
+}
+
+// ── Landscape mode ───────────────────────────────────
+@media (orientation: landscape) and (max-height: 500px) {
+  .display-card {
+    min-height: 90px;
+    padding: 12px 16px 10px;
+  }
+
+  .display-result {
+    font-size: 2rem;
+  }
+
+  .btn {
+    height: 44px;
+  }
+
+  .btn-sci {
+    height: 40px;
+  }
 }
