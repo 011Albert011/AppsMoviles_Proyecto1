@@ -9,37 +9,47 @@
   gap: 8px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   letter-spacing: 0.02em;
 
   ion-icon {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--ion-color-primary-tint);
   }
 }
 
-// ── Wrapper ───────────────────────────────────────────
+// ── Ion-content: sin scroll ───────────────────────────
+ion-content {
+  --overflow: hidden;
+}
+
+// ── Wrapper: altura directa sin herencia de shadow DOM ─
+// 56px = altura estándar de ion-toolbar en Ionic
+// svh = "small viewport height" (excluye la UI del navegador)
 .calc-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 12px 10px 16px;
-  gap: 12px;
+  height: calc(100svh - 56px);  // altura segura, sin scroll
+  max-height: calc(100svh - 56px);
+  padding: 8px 8px 10px;
+  gap: 5px;
   background: var(--calc-bg);
-  min-height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 // ── Display Card ──────────────────────────────────────
 .display-card {
+  flex-shrink: 0;
   background: var(--calc-display-bg);
   border: 1px solid var(--calc-border);
-  border-radius: 20px;
-  padding: 18px 20px 14px;
+  border-radius: 16px;
+  padding: 10px 16px 10px;
   position: relative;
   box-shadow:
     0 0 30px rgba(124, 58, 237, 0.15),
     inset 0 1px 0 rgba(255,255,255,0.05);
-  min-height: 130px;
+  min-height: 95px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -50,20 +60,19 @@
     top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
-    border-radius: 20px 20px 0 0;
+    border-radius: 16px 16px 0 0;
   }
 }
 
 .display-expression {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 400;
+  font-size: 0.8rem;
   color: rgba(148, 163, 184, 0.8);
   text-align: right;
-  min-height: 20px;
+  min-height: 18px;
   word-break: break-all;
   letter-spacing: 0.03em;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -71,7 +80,7 @@
 
 .display-result {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 2.8rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #f8fafc;
   text-align: right;
@@ -81,20 +90,20 @@
   transition: font-size 0.2s ease;
 
   &--small {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
   }
 }
 
 .display-angle-mode {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  top: 10px;
+  left: 12px;
 
   ion-chip {
     --background: rgba(124, 58, 237, 0.2);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    height: 24px;
+    height: 22px;
     cursor: pointer;
     letter-spacing: 0.08em;
     transition: transform 0.15s ease;
@@ -105,93 +114,95 @@
   }
 }
 
-// ── Error Banner ─────────────────────────────────────
+// ── Error Banner ──────────────────────────────────────
 .error-banner {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 8px 12px;
   color: #fca5a5;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
   animation: slideDown 0.2s ease;
 
-  ion-icon {
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-
-  span {
-    flex: 1;
-  }
-
-  .error-close {
-    opacity: 0.7;
-  }
+  ion-icon { font-size: 0.9rem; flex-shrink: 0; }
+  span { flex: 1; }
+  .error-close { opacity: 0.7; }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Keyboard ──────────────────────────────────────────
-.calc-keyboard {
+// ── Teclado: rellena el espacio restante ──────────────
+.kbd {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  min-height: 0;          // permite que flex-shrink funcione
 }
 
-.btn-grid {
-  padding: 0;
+// ── Fila de botones ─────────────────────────────────────────
+// Altura explícita: (viewport - toolbar - padding - display - gaps) / 8 filas
+// 56=toolbar, 18=padding wrapper, 95=display, 5=gap, 3=divider, 28=gaps entre filas
+.kbd-row {
+  flex-shrink: 0;
+  height: calc((100svh - 205px) / 8);
+  min-height: 36px;       // mínimo absoluto en pantallas muy pequeñas
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+// ── Celda ─────────────────────────────────────────────
+.kbd-col {
   flex: 1;
-
-  ion-row {
-    gap: 6px;
-    margin-bottom: 6px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  ion-col {
-    padding: 0;
-  }
+  display: flex;
+  flex-direction: column; // columna para que height:100% del botón funcione
+  min-width: 0;
 }
 
 .divider {
+  flex-shrink: 0;
   height: 1px;
   background: linear-gradient(90deg,
     transparent,
     rgba(124, 58, 237, 0.4),
     transparent
   );
-  margin: 6px 0 8px;
+  margin: 1px 0;
 }
 
-// ── Button Base ──────────────────────────────────────
+// ── Botón Base ───────────────────────────────────────
 .btn {
-  --border-radius: 14px;
+  --border-radius: 12px;
   --padding-top: 0;
   --padding-bottom: 0;
-  height: 52px;
+  --min-height: 0;        // ← anula el min-height interno de Ionic (~63px)
+  height: 100%;           // rellena la celda completa
+  width: 100%;
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   margin: 0;
+  flex: 1;
+  min-height: 0;
   transition:
     transform 0.1s ease,
-    box-shadow 0.15s ease,
     filter 0.15s ease;
 
   &::part(native) {
-    border-radius: 14px;
+    border-radius: 12px;
+    height: 100%;
+    min-height: 0;
   }
 
   &:active {
@@ -200,136 +211,107 @@
   }
 }
 
-// ── Number buttons ────────────────────────────────────
+// ── Botones numéricos ─────────────────────────────────
 .btn-num {
   --background: var(--btn-number-bg);
   --background-activated: var(--btn-number-hover);
   --color: var(--btn-number-text);
-  --box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  font-size: 1.3rem;
+  --box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-size: 1.1rem;
   font-weight: 500;
-
-  &:hover {
-    --background: var(--btn-number-hover);
-  }
 }
 
-// ── Operator buttons ─────────────────────────────────
+// ── Operadores básicos ────────────────────────────────
 .btn-op {
   --background: var(--btn-op-bg);
   --background-activated: var(--btn-op-hover);
   --color: var(--btn-op-text);
-  --box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
-  font-size: 1.3rem;
-
-  &:hover {
-    --background: var(--btn-op-hover);
-  }
+  --box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+  font-size: 1.1rem;
 }
 
-// ── Scientific buttons ────────────────────────────────
+// ── Funciones científicas ─────────────────────────────
 .btn-sci {
   --background: var(--btn-sci-bg);
   --background-activated: var(--btn-sci-hover);
   --color: var(--btn-sci-text);
-  --box-shadow: 0 2px 10px rgba(6, 182, 212, 0.35);
-  font-size: 0.82rem;
+  --box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  height: 46px;
-
-  &:hover {
-    --background: var(--btn-sci-hover);
-  }
 }
 
-// ── Clear button ──────────────────────────────────────
+// ── Borrar ────────────────────────────────────────────
 .btn-clear {
   --background: var(--btn-clear-bg);
   --background-activated: var(--btn-clear-hover);
   --color: var(--btn-clear-text);
-  --box-shadow: 0 2px 12px rgba(185, 28, 28, 0.4);
-  font-size: 1.1rem;
-
-  &:hover {
-    --background: var(--btn-clear-hover);
-  }
+  --box-shadow: 0 2px 10px rgba(185, 28, 28, 0.4);
 }
 
-// ── Backspace button ──────────────────────────────────
+// ── Retroceso ─────────────────────────────────────────
 .btn-backspace {
   --background: var(--btn-backspace-bg);
   --background-activated: var(--btn-backspace-hover);
   --color: var(--btn-backspace-text);
-  --box-shadow: 0 2px 10px rgba(146, 64, 14, 0.4);
-  font-size: 1.2rem;
-
-  &:hover {
-    --background: var(--btn-backspace-hover);
-  }
+  --box-shadow: 0 2px 8px rgba(146, 64, 14, 0.4);
 }
 
-// ── Equals button ─────────────────────────────────────
+// ── Igual ─────────────────────────────────────────────
 .btn-equals {
   --background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
   --background-activated: linear-gradient(135deg, #6d33d1 0%, #059ab8 100%);
   --color: #ffffff;
-  --box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6);
-  font-size: 1.5rem;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
+  --box-shadow: 0 4px 18px rgba(124, 58, 237, 0.6);
+  font-size: 1.3rem;
 
   &:active {
-    --box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+    --box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
   }
 }
 
-// ── Responsive: Tablets ──────────────────────────────
+// ── Tablet (≥600px): botones más grandes ─────────────
 @media (min-width: 600px) {
   .calc-wrapper {
     max-width: 480px;
     margin: 0 auto;
-    padding: 20px 16px 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: 480px;
+    padding: 12px 16px 14px;
+    gap: 6px;
   }
 
   .btn {
-    height: 62px;
-    font-size: 1.1rem;
-    --border-radius: 16px;
-
-    &::part(native) {
-      border-radius: 16px;
-    }
+    font-size: 1rem;
+    --border-radius: 14px;
+    &::part(native) { border-radius: 14px; }
   }
 
-  .btn-sci {
-    height: 54px;
-    font-size: 0.9rem;
-  }
+  .btn-num { font-size: 1.2rem; }
+  .btn-op  { font-size: 1.2rem; }
+  .btn-sci { font-size: 0.8rem; }
 
-  .display-result {
-    font-size: 3.2rem;
-  }
+  .display-result { font-size: 2.6rem; }
 }
 
-// ── Landscape mode ───────────────────────────────────
-@media (orientation: landscape) and (max-height: 500px) {
+// ── Landscape compacto ────────────────────────────────
+@media (orientation: landscape) and (max-height: 480px) {
   .display-card {
-    min-height: 90px;
-    padding: 12px 16px 10px;
+    min-height: 70px;
+    padding: 6px 14px 8px;
   }
 
-  .display-result {
-    font-size: 2rem;
-  }
+  .display-result { font-size: 1.6rem; }
+
+  .kbd { gap: 3px; }
+  .kbd-row { gap: 3px; }
 
   .btn {
-    height: 44px;
+    font-size: 0.8rem;
+    min-height: 30px;
   }
 
-  .btn-sci {
-    height: 40px;
-  }
+  .btn-sci { font-size: 0.65rem; }
 }
