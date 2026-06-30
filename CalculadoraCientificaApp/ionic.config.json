@@ -1,0 +1,7 @@
+{
+  "name": "CalculadoraCientificaApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
